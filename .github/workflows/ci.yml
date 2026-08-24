@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Run Unit Tests
+        run: dotnet test --no-restore
+
+      - name: Build Docker image
+        run: docker compose build web
+
+      - name: Start db
+        run: docker compose up -d base redis
+
+      - name: Run app
+        run: docker compose up -d web
+
+      - name: Check logs
+        run: docker compose logs web
+
+      - name: Stop
+        run: docker compose down -v
