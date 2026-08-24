@@ -1,0 +1,23 @@
+name: Deploy on test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Remove
+        run: docker compose down -v
+
+      - name: Build and start containers
+        env:
+          WEB_PORT: 18001
+        run: docker compose up -d --build
+
+      - name: Check logs
+        run: docker compose logs web

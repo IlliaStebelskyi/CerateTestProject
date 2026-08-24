@@ -1,7 +1,17 @@
 using Microsoft.EntityFrameworkCore;
-public class ApplicationDb(IConfiguration configuration) : DbContext
+
+public class ApplicationDb : DbContext
 {
-    private readonly IConfiguration _configuration = configuration;
+    private readonly IConfiguration? _configuration;
+
+    public ApplicationDb(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    public ApplicationDb(DbContextOptions<ApplicationDb> options) : base(options)
+    {
+    }
     public DbSet<Company> Companies { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<UserProfile> UserProfiles { get; set; }
@@ -14,13 +24,16 @@ public class ApplicationDb(IConfiguration configuration) : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder dbContextOptionsBuilder)
     {
-        dbContextOptionsBuilder
-            .UseNpgsql(_configuration.GetConnectionString("Database"));
+        if (!dbContextOptionsBuilder.IsConfigured)
+        {
+            dbContextOptionsBuilder.UseNpgsql(_configuration!.GetConnectionString("Database"));
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDb).Assembly);
     }
-
 }
+
+
