@@ -1,0 +1,6 @@
+EfCorePart2.Tests/
+bin/
+obj/
+**/bin/
+**/obj/
+.git/
